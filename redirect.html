@@ -3,63 +3,116 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Перенаправление...</title>
+    <title>Отладка перенаправления...</title>
     <style>
         body {
             font-family: sans-serif;
             display: flex;
+            flex-direction: column; /* Изменено на column */
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             margin: 0;
             background-color: #f0f0f0;
             color: #333;
+            padding: 20px;
+            box-sizing: border-box;
         }
-        .loading-text {
-            font-size: 1.2em;
+        .debug-info {
+            background-color: #fff;
+            border: 1px solid #ccc;
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: left;
+        }
+        .debug-info p {
+            margin: 8px 0;
+        }
+        .debug-info strong {
+            color: #007bff;
+        }
+        .warning {
+            color: orange;
+            font-weight: bold;
+        }
+        .error {
+            color: red;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
-    <div class="loading-text">
-        Пожалуйста, подождите, идет перенаправление...
+    <div class="debug-info">
+        <h1>Отладка перенаправления</h1>
+        <p><strong>Статус:</strong> <span id="debug-status">Загрузка...</span></p>
+        <p><strong>Адрес из localStorage:</strong> <span id="debug-address">Загрузка...</span></p>
+        <p><strong>Адрес содержит "шелехов":</strong> <span id="debug-includes-shelekhov">Загрузка...</span></p>
+        <p><strong>Определенный statusParam:</strong> <span id="debug-status-param">Загрузка...</span></p>
+        <p><strong>Полный URL для редиректа (если бы он был):</strong> <span id="debug-redirect-url">Загрузка...</span></p>
+        <p class="warning">Перенаправление временно отключено для отладки.</p>
     </div>
 
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-        console.log('✅ Custom script (GitHub Redirect Page): DOMContentLoaded fired.');
+        console.log('✅ Custom script (GitHub Redirect Page - DEBUG): DOMContentLoaded fired.');
 
         // --- ОБЯЗАТЕЛЬНО ЗАМЕНИТЕ ЭТОТ URL НА АДРЕС ВАШЕЙ ЕДИНОЙ СТРАНИЦЫ БЛАГОДАРНОСТИ В ТИЛЬДЕ ---
-        const finalThankYouPageBaseUrl = 'https://gk38dev.tilda.ws/thx2'; 
+        const finalThankYouPageBaseUrl = 'https://вашкодомен.ru/ваша-единая-страница-благодарности'; 
+
+        const debugStatusElem = document.getElementById('debug-status');
+        const debugAddressElem = document.getElementById('debug-address');
+        const debugIncludesShelekhovElem = document.getElementById('debug-includes-shelekhov');
+        const debugStatusParamElem = document.getElementById('debug-status-param');
+        const debugRedirectUrlElem = document.getElementById('debug-redirect-url');
+
+        debugStatusElem.textContent = 'Обработка...';
 
         const deliveryAddress = localStorage.getItem('deliveryAddress');
-        console.log('📦 Custom script (GitHub Redirect Page): Адрес ИЗ localStorage:', deliveryAddress);
+        console.log('📦 Custom script (GitHub Redirect Page - DEBUG): Адрес ИЗ localStorage:', deliveryAddress);
+        debugAddressElem.textContent = deliveryAddress || 'НЕ НАЙДЕН (null/пусто)';
+        if (!deliveryAddress) {
+            debugAddressElem.classList.add('error');
+        }
 
-        localStorage.removeItem('deliveryAddress');
-        console.log('🧹 Custom script (GitHub Redirect Page): Адрес удален ИЗ localStorage (если был).');
+        // Временно не удаляем адрес, чтобы можно было проверить его несколько раз
+        // localStorage.removeItem('deliveryAddress'); 
+        // console.log('🧹 Custom script (GitHub Redirect Page - DEBUG): Адрес удален ИЗ localStorage (если был).');
 
-        let redirectUrl = finalThankYouPageBaseUrl;
+
         let statusParam = 'other'; // По умолчанию
+        let includesShelekhov = false;
 
         if (deliveryAddress) {
             const addressLower = deliveryAddress.toLowerCase();
-            console.log('📦 Custom script (GitHub Redirect Page): Адрес в нижнем регистре:', addressLower);
-            const includesShelekhov = addressLower.includes('шелехов');
-            console.log('📦 Custom script (GitHub Redirect Page): Адрес содержит "шелехов":', includesShelekhov);
+            console.log('📦 Custom script (GitHub Redirect Page - DEBUG): Адрес в нижнем регистре:', addressLower);
+            includesShelekhov = addressLower.includes('шелехов');
+            console.log('📦 Custom script (GitHub Redirect Page - DEBUG): Адрес содержит "шелехов":', includesShelekhov);
+            debugIncludesShelekhovElem.textContent = includesShelekhov ? 'Да' : 'Нет';
 
             if (includesShelekhov) {
                 statusParam = 'shelekhov';
-                console.log('➡️ Custom script (GitHub Redirect Page): Определен статус "shelekhov".');
+                console.log('➡️ Custom script (GitHub Redirect Page - DEBUG): Определен статус "shelekhov".');
             } else {
-                console.log('➡️ Custom script (GitHub Redirect Page): Определен статус "other".');
+                console.log('➡️ Custom script (GitHub Redirect Page - DEBUG): Определен статус "other".');
             }
         } else {
-            console.warn('⚠️ Custom script (GitHub Redirect Page): Адрес НЕ НАЙДЕН в localStorage. Используется статус "other" по умолчанию.');
+            console.warn('⚠️ Custom script (GitHub Redirect Page - DEBUG): Адрес НЕ НАЙДЕН в localStorage. Используется статус "other" по умолчанию.');
+            debugIncludesShelekhovElem.textContent = 'Н/Д (нет адреса)';
         }
 
-        redirectUrl += '?status=' + statusParam;
-        console.log('➡️ Custom script (GitHub Redirect Page): Окончательный URL для перенаправления:', redirectUrl);
-        window.location.replace(redirectUrl);
+        debugStatusParamElem.textContent = statusParam;
+        
+        const generatedRedirectUrl = finalThankYouPageBaseUrl + '?status=' + statusParam;
+        console.log('➡️ Custom script (GitHub Redirect Page - DEBUG): Сгенерированный URL для перенаправления:', generatedRedirectUrl);
+        debugRedirectUrlElem.textContent = generatedRedirectUrl;
+        
+        debugStatusElem.textContent = 'Готово к перенаправлению (но отключено)';
+
+        // ПЕРЕНАПРАВЛЕНИЕ ВРЕМЕННО ОТКЛЮЧЕНО ДЛЯ ОТЛАДКИ!
+        // window.location.replace(generatedRedirectUrl);
     });
     </script>
 </body>
