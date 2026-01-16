@@ -1,1 +1,66 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Перенаправление...</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            color: #333;
+        }
+        .loading-text {
+            font-size: 1.2em;
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-text">
+        Пожалуйста, подождите, идет перенаправление...
+    </div>
 
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('✅ Custom script (GitHub Redirect Page): DOMContentLoaded fired.');
+
+        // --- ОБЯЗАТЕЛЬНО ЗАМЕНИТЕ ЭТОТ URL НА АДРЕС ВАШЕЙ ЕДИНОЙ СТРАНИЦЫ БЛАГОДАРНОСТИ В ТИЛЬДЕ ---
+        const finalThankYouPageBaseUrl = 'https://вашкодомен.ru/ваша-единая-страница-благодарности'; 
+
+        const deliveryAddress = localStorage.getItem('deliveryAddress');
+        console.log('📦 Custom script (GitHub Redirect Page): Адрес ИЗ localStorage:', deliveryAddress);
+
+        localStorage.removeItem('deliveryAddress');
+        console.log('🧹 Custom script (GitHub Redirect Page): Адрес удален ИЗ localStorage (если был).');
+
+        let redirectUrl = finalThankYouPageBaseUrl;
+        let statusParam = 'other'; // По умолчанию
+
+        if (deliveryAddress) {
+            const addressLower = deliveryAddress.toLowerCase();
+            console.log('📦 Custom script (GitHub Redirect Page): Адрес в нижнем регистре:', addressLower);
+            const includesShelekhov = addressLower.includes('шелехов');
+            console.log('📦 Custom script (GitHub Redirect Page): Адрес содержит "шелехов":', includesShelekhov);
+
+            if (includesShelekhov) {
+                statusParam = 'shelekhov';
+                console.log('➡️ Custom script (GitHub Redirect Page): Определен статус "shelekhov".');
+            } else {
+                console.log('➡️ Custom script (GitHub Redirect Page): Определен статус "other".');
+            }
+        } else {
+            console.warn('⚠️ Custom script (GitHub Redirect Page): Адрес НЕ НАЙДЕН в localStorage. Используется статус "other" по умолчанию.');
+        }
+
+        redirectUrl += '?status=' + statusParam;
+        console.log('➡️ Custom script (GitHub Redirect Page): Окончательный URL для перенаправления:', redirectUrl);
+        window.location.replace(redirectUrl);
+    });
+    </script>
+</body>
+</html>
